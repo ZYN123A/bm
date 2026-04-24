@@ -242,9 +242,7 @@ rules:
   - RULE-SET,Groq / Domain,⚡ Groq
   - RULE-SET,Grok / Domain,🐦 Grok
   - RULE-SET,Reddit / Domain,🧡 Reddit
-  - RULE-SET,GitHub / Domain,🐙 GitHub
-  - DOMAIN-SUFFIX,docker.io,🐙 GitHub       
-  - DOMAIN-KEYWORD,docker,🐙 GitHub          
+  - RULE-SET,GitHub / Domain,🐙 GitHub       
   - RULE-SET,Telegram / Domain,✈️ Telegram
   - RULE-SET,Telegram / IP,✈️ Telegram
   - RULE-SET,WhatsApp / Domain,💬 WhatsApp
