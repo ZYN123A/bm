@@ -6,8 +6,8 @@
 
 proxy-providers:
 
-  机场名称:
-    url: "机场订阅地址"  
+  FlowerCloud:
+    url: "https://api-huacloud.net/sub?target=clash&insert=true&emoji=true&udp=true&clash.doh=true&new_name=true&filename=Flower_SS.yaml&url=https%3A%2F%2Fapi.xmancdn.net%2Fosubscribe.php%3Ftoken2%3Dy89knzkq-51cef23b200kl4c7k2%26sip002%3D1"  
     type: http
     interval: 86400
     health-check:
@@ -128,6 +128,9 @@ default: &default
     - 香港-故转
     - 台湾-故转
     - 日本-故转
+    - 低倍率-自动
+    - 非日低倍率-自动
+    - 日本低倍率-自动
     - 新加坡-故转
     - 韩国-故转
     - 美国-故转
@@ -175,6 +178,34 @@ proxy-groups:
   - {name: 国内, <<: *default}
   - {name: 其他, <<: *default}
 
+  # ... 其他分組 ...
+
+#  日本刮削
+  - name: 日本刮削
+    type: select
+    proxies:
+      - 日本低倍率-自动
+      - 日本-自动
+      - 直连
+      - 拒绝
+
+  #  非日刮削
+  - name: 非日刮削
+    type: select
+    proxies:
+      - 非日低倍率-自动
+      - 所有-自动
+      - 香港-自动
+      - 台湾-自动
+      - 新加坡-自动
+      - 韩国-自动
+      - 美国-自动
+      - 其他-自动
+      - 直连
+      - 拒绝
+
+  # ... 其他分組如 ChatGPT, YouTube 等 ...
+
   - name: 所有-手动
     type: select
     include-all: true
@@ -187,7 +218,7 @@ proxy-groups:
     interval: 300
     filter: "^((?!(直连|拒绝)).)*$"
 
-  # 香港组
+    # 香港组
   - name: 香港-故转
     type: fallback
     interval: 300
@@ -245,6 +276,31 @@ proxy-groups:
     tolerance: 50
     interval: 300
     filter: "(?=.*(广日|日本|JP|川日|东京|大阪|泉日|埼玉|沪日|深日|🇯🇵|Japan)).*$"
+
+    # 低倍率组
+  - name: 低倍率-自动
+    type: url-test
+    url: http://www.gstatic.com/generate_204
+    interval: 180
+    tolerance: 50
+    include-all: true
+    filter: "(实验性|0\\.1x|0\\.1X|0\\.2x|0\\.5x|低倍率|倍率)"
+
+  - name: 非日低倍率-自动
+    type: url-test
+    url: http://www.gstatic.com/generate_204
+    interval: 180
+    tolerance: 50
+    include-all: true
+    filter: "^(?=.*(实验性|0\\.1x|0\\.1X|0\\.2x|0\\.5x|低倍率|倍率))(?!.*(广日|日本|JP|川日|东京|大阪|泉日|埼玉|沪日|深日|🇯🇵|Japan)).*$"
+
+  - name: 日本低倍率-自动
+    type: url-test
+    url: http://www.gstatic.com/generate_204
+    interval: 180
+    tolerance: 50
+    include-all: true
+    filter: "^(?=.*(实验性|0\\.1x|0\\.1X|0\\.2x|0\\.5x|低倍率|倍率))(?=.*(广日|日本|JP|川日|东京|大阪|泉日|埼玉|沪日|深日|🇯🇵|Japan)).*$"
 
   # 新加坡组
   - name: 新加坡-故转
@@ -398,6 +454,8 @@ rules:
   - RULE-SET,China / Domain,国内
   - RULE-SET,China / IP,国内,no-resolve
   - RULE-SET,Private / Domain,国内
+  - RULE-SET,日本刮削 / Domain,日本刮削
+  - RULE-SET,非日刮削 / Domain,非日刮削
   - MATCH,其他
 
 # ========================
@@ -460,7 +518,8 @@ rule-providers:
   Google / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/google.mrs"}  
   Google / IP: {<<: *ip, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geoip/google.mrs"}
   BiliBili / Domain: {<<: *domain,  url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/bilibili.mrs"}
-  
+  日本刮削 / Domain: {<<: *class, url: "https://gh-proxy.com/raw.githubusercontent.com/ZYN123A/bm/refs/heads/main/AAI.list"}
+  非日刮削 / Domain: {<<: *class, url: "https://gh-proxy.com/raw.githubusercontent.com/ZYN123A/bm/refs/heads/main/FFAI.list"}
 
 #  GateFireWall / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/gfw.mrs"}
 
