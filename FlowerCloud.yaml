@@ -20,7 +20,7 @@ proxy-providers:
     proxy: 🚀 直连
 
   SSRDOG:
-    url: "https://be6454034c3513812039e7c9714c988c.m4hs-9ekt-y2qb-fa7x-wl6r.sbs/s?q=27b28e65&t=be6454034c3513812039e7c9714c988c.jpg&flag=clash&route=1"
+    url: "https://be6454034c3513812039e7c9714c988c.m4hs-9ekt-y2qb-fa7x-wl6r.sbs/s?q=10339c38&t=be6454034c3513812039e7c9714c988c.jpg&flag=clash&route=1"
     type: http
     interval: 86400
     health-check:
@@ -245,7 +245,6 @@ rules:
   - RULE-SET,GitHub / Domain,🐙 GitHub
   - DOMAIN-SUFFIX,docker.io,🐙 GitHub       
   - DOMAIN-KEYWORD,docker,🐙 GitHub          
-  - RULE-SET,Docker / Domain,🐙 GitHub
   - RULE-SET,Telegram / Domain,✈️ Telegram
   - RULE-SET,Telegram / IP,✈️ Telegram
   - RULE-SET,WhatsApp / Domain,💬 WhatsApp
