@@ -1,5 +1,5 @@
 # ========================
-# Clash-ALL 终极整合配置文件 (修正版)
+# Clash-ALL 终极整合配置文件 (正则修正版)
 # ========================
 
 proxy-providers:
@@ -54,25 +54,25 @@ tun:
   auto-route: true
 
 # ========================
-# 策略组定义
+# 策略组定义 (Anchor)
 # ========================
 default: &default
   type: select
   proxies:
     - 全地区低倍率-故转  # 首选
     - 所有-智选
-    - 所有-手选
     - 香港-故转
     - 台湾-故转
     - 日本-故转
     - 新加坡-故转
     - 美国-故转
     - 其他-故转
+    - 所有-手选
     - 直连
     - 拒绝
 
 proxy-groups:
-  # --- 1. 业务分流组 (低倍率优先) ---
+  # --- 1. 业务分流组 (遵循低倍率优先) ---
   - {name: AI, <<: *default}
   - {name: Meta AI, <<: *default}
   - {name: Perplexity, <<: *default}
@@ -89,15 +89,15 @@ proxy-groups:
 
   # --- 2. 业务分流组 (直连优先) ---
   - name: 国内
-    <<: *default
+    type: select
     proxies: [直连, 全地区低倍率-故转, 所有-智选, 所有-手选]
 
   - name: Nvidia
-    <<: *default
-    proxies: [直连, 全地区低倍率-故转, 所有-智选, 所有-手选]
+    type: select
+    proxies: [直连, 全地区低倍率-故转, 所有-智选, 美国-故转]
 
   - name: Test
-    <<: *default
+    type: select
     proxies: [直连, 全地区低倍率-故转, 所有-智选, 香港-故转]
 
   # --- 3. 刮削专项 ---
@@ -108,16 +108,48 @@ proxy-groups:
     type: select
     proxies: [非日低倍率-故转, 新加坡-故转, 香港-故转, 美国-故转, 直连]
 
-  # --- 4. 节点逻辑组 ---
+  # --- 4. 节点逻辑与过滤 (套用你提供的正则) ---
+  
+  # 全地区低倍率
+  - {name: 全地区低倍率-故转, type: fallback, proxies: [全地区低倍率-手选, 全地区低倍率-智选]}
+  - name: 全地区低倍率-手选
+    type: select
+    include-all: true
+    filter: "(实验性|0\\.1x|0\\.1X|0\\.2x|0\\.5x|低倍率|倍率)"
+  - name: 全地区低倍率-智选
+    type: smart
+    include-all: true
+    filter: "(实验性|0\\.1x|0\\.1X|0\\.2x|0\\.5x|低倍率|倍率)"
+    interval: 180
+
+  # 日本低倍率
+  - {name: 日本低倍率-故转, type: fallback, proxies: [日本低倍率-手选, 日本低倍率-智选]}
+  - name: 日本低倍率-手选
+    type: select
+    include-all: true
+    filter: "^(?=.*(实验性|0\\.1x|0\\.1X|0\\.2x|0\\.5x|低倍率|倍率))(?=.*(广日|日本|JP|川日|东京|大阪|泉日|埼玉|沪日|深日|🇯🇵|Japan)).*$"
+  - name: 日本低倍率-智选
+    type: smart
+    include-all: true
+    filter: "^(?=.*(实验性|0\\.1x|0\\.1X|0\\.2x|0\\.5x|低倍率|倍率))(?=.*(广日|日本|JP|川日|东京|大阪|泉日|埼玉|沪日|深日|🇯🇵|Japan)).*$"
+    interval: 180
+
+  # 非日低倍率
+  - {name: 非日低倍率-故转, type: fallback, proxies: [非日低倍率-手选, 非日低倍率-智选]}
+  - name: 非日低倍率-手选
+    type: select
+    include-all: true
+    filter: "^(?=.*(实验性|0\\.1x|0\\.1X|0\\.2x|0\\.5x|低倍率|倍率))(?!.*(广日|日本|JP|川日|东京|大阪|泉日|埼玉|沪日|深日|🇯🇵|Japan)).*$"
+  - name: 非日低倍率-智选
+    type: smart
+    include-all: true
+    filter: "^(?=.*(实验性|0\\.1x|0\\.1X|0\\.2x|0\\.5x|低倍率|倍率))(?!.*(广日|日本|JP|川日|东京|大阪|泉日|埼玉|沪日|深日|🇯🇵|Japan)).*$"
+    interval: 180
+
+  # 基础地域组
   - {name: 所有-手选, type: select, include-all: true, filter: "^((?!(直连|拒绝)).)*$"}
   - {name: 所有-智选, type: smart, include-all: true, policy-priority: ".*牛逼.*:0.8;.*(香港|HK).*:1.2", interval: 180, filter: "^((?!(直连|拒绝)).)*$"}
 
-  # 全地区低倍率
-  - {name: 全地区低倍率-故转, type: fallback, proxies: [全地区低倍率-手选, 全地区低倍率-智选]}
-  - {name: 全地区低倍率-手选, type: select, include-all: true, filter: "^(?=.*(0\\.1x|0\\.1X|0\\.2x|0\\.5x|低倍率|倍率)).*$"}
-  - {name: 全地区低倍率-智选, type: smart, include-all: true, filter: "^(?=.*(0\\.1x|0\\.1X|0\\.2x|0\\.5x|低倍率|倍率)).*$"}
-
-  # 地区 Fallback (手选 > 智选)
   - {name: 香港-故转, type: fallback, proxies: [香港-手选, 香港-智选]}
   - {name: 香港-手选, type: select, include-all: true, filter: "(?=.*(香港|HK|Hong Kong|🇭🇰)).*$"}
   - {name: 香港-智选, type: smart, include-all: true, filter: "(?=.*(香港|HK|Hong Kong|🇭🇰)).*$"}
@@ -141,15 +173,6 @@ proxy-groups:
   - {name: 其他-故转, type: fallback, proxies: [其他-手选, 其他-智选]}
   - {name: 其他-手选, type: select, include-all: true, filter: "^((?!(直连|拒绝|香港|HK|台湾|TW|日本|JP|新加坡|SG|美国|US)).)*$"}
   - {name: 其他-智选, type: smart, include-all: true, filter: "^((?!(直连|拒绝|香港|HK|台湾|TW|日本|JP|新加坡|SG|美国|US)).)*$"}
-
-  # 刮削专用低倍率
-  - {name: 日本低倍率-故转, type: fallback, proxies: [日本低倍率-手选, 日本低倍率-智选]}
-  - {name: 日本低倍率-手选, type: select, include-all: true, filter: "^(?=.*(0\\.1x|0\\.1X|0\\.2x|0\\.5x|低倍率|倍率))(?=.*(日本|JP|🇯🇵|Japan)).*$"}
-  - {name: 日本低倍率-智选, type: smart, include-all: true, filter: "^(?=.*(0\\.1x|0\\.1X|0\\.2x|0\\.5x|低倍率|倍率))(?=.*(日本|JP|🇯🇵|Japan)).*$"}
-
-  - {name: 非日低倍率-故转, type: fallback, proxies: [非日低倍率-手选, 非日低倍率-智选]}
-  - {name: 非日低倍率-手选, type: select, include-all: true, filter: "^(?=.*(0\\.1x|0\\.1X|0\\.2x|0\\.5x|低倍率|倍率))(?!.*(日本|JP|🇯🇵|Japan)).*$"}
-  - {name: 非日低倍率-智选, type: smart, include-all: true, filter: "^(?=.*(0\\.1x|0\\.1X|0\\.2x|0\\.5x|低倍率|倍率))(?!.*(日本|JP|🇯🇵|Japan)).*$"}
 
 # ========================
 # 规则引擎
@@ -187,7 +210,7 @@ rules:
   - MATCH,其他
 
 # ========================
-# 规则集提供者 (已修复 Youtube 报错)
+# 规则集提供者
 # ========================
 rule-anchor:
   ip: &ip {type: http, interval: 86400, behavior: ipcidr, format: mrs}
@@ -206,40 +229,20 @@ rule-providers:
   Copilot / Domain: {<<: *class, url: "https://gh-proxy.com/raw.githubusercontent.com/liandu2024/clash/refs/heads/main/list/Copilot.list"}
   Gemini / Domain: {<<: *class, url: "https://gh-proxy.com/raw.githubusercontent.com/liandu2024/clash/refs/heads/main/list/Gemini.list"}
   GitHub / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/github.mrs"}
-  Amazon / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/amazon.mrs"}
-  Apple-CN / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/apple-cn.mrs"}
   Apple / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/apple.mrs"} 
   Microsoft / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/microsoft.mrs"}
   OKX / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/okx.mrs"}
-  Bybit / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/bybit.mrs"}
-  Binance / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/binance.mrs"}
   TikTok / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/tiktok.mrs"}
   Netflix / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/netflix.mrs"}
   Netflix / IP: {<<: *ip, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geoip/netflix.mrs"}
-  Disney / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/disney.mrs"}
-  HBO / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/hbo.mrs"}
-  Spotify / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/spotify.mrs"}
   Steam / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/steam.mrs"}
-  Epic / Domain: {<<: *class, url: "https://gh-proxy.com/raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Epic/Epic.list"}
-  EA / Domain: {<<: *class, url: "https://gh-proxy.com/raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/EA/EA.list"}
-  Blizzard / Domain: {<<: *class, url: "https://gh-proxy.com/raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Blizzard/Blizzard.list"}
-  UBI / Domain: {<<: *class, url: "https://gh-proxy.com/raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/UBI/UBI.list"}
-  PlayStation / Domain: {<<: *class, url: "https://gh-proxy.com/raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/PlayStation/PlayStation.list"}
-  Nintend / Domain: {<<: *class, url: "https://gh-proxy.com/raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Nintendo/Nintendo.list"}
-  Proxy / Domain: {<<: *class, url: "https://gh-proxy.com/raw.githubusercontent.com/liandu2024/clash/refs/heads/main/list/Proxy.list"}
-  Globe / Domain: {<<: *class, url: "https://gh-proxy.com/raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/Global/Global.list"} 
-  Block / Domain: {<<: *class, url: "https://gh-proxy.com/raw.githubusercontent.com/liandu2024/clash/refs/heads/main/list/Block.list"}
   Nvidia / Domain: {<<: *class, url: "https://gh-proxy.com/raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/Nvidia/Nvidia.list"}
-  Crunchyroll / Domain: {<<: *class, url: "https://gh-proxy.com/raw.githubusercontent.com/liandu2024/clash/refs/heads/main/list/Crunchyroll.list"}
   Reddit / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/reddit.mrs"}
   Groq / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/groq.mrs"}
   Grok / Domain: {<<: *class, url: "https://gh-proxy.com/raw.githubusercontent.com/liandu2024/clash/refs/heads/main/list/Grok.list"}
-  Popcorn / Domain: {<<: *class, url: "https://gh-proxy.com/raw.githubusercontent.com/liandu2024/clash/refs/heads/main/list/Popcorn.list"}
   Direct / Domain: {<<: *class, url: "https://gh-proxy.com/raw.githubusercontent.com/liandu2024/clash/refs/heads/main/list/Direct.list"}
-  Private / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/private.mrs"}
   China / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/cn.mrs"}
   China / IP: {<<: *ip, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geoip/cn.mrs"}
-  # 以下规则集已根据 rules 需求取消注释
   Youtube / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/youtube.mrs"}
   Google / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/google.mrs"}
-  Google / IP: {<<: *ip, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geoip/google.mrs"}
+  Block / Domain: {<<: *class, url: "https://gh-proxy.com/raw.githubusercontent.com/liandu2024/clash/refs/heads/main/list/Block.list"}
