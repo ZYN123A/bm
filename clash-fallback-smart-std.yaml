@@ -1,11 +1,12 @@
 # ========================
-# Clash-ALL 终极整合配置文件 (低倍率首选版)
+# Clash-ALL 终极整合配置文件 (修正版)
 # ========================
 
 proxy-providers:
   FlowerCloud:
     url: "https://api-huacloud.net/sub?target=clash&insert=true&emoji=true&udp=true&clash.doh=true&new_name=true&filename=Flower_SS.yaml&url=https%3A%2F%2Fapi.xmancdn.net%2Fosubscribe.php%3Ftoken2%3Dy89knzkq-51cef23b200kl4c7k2%26sip002%3D1"
     type: http
+    interval: 86400
     health-check:
       enable: true
       url: https://www.gstatic.com/generate_204
@@ -15,6 +16,7 @@ proxy-providers:
   SSRDOG:
     url: "https://be6454034c3513812039e7c9714c988c.m4hs-9ekt-y2qb-fa7x-wl6r.sbs/s?q=d8089200&t=be6454034c3513812039e7c9714c988c.jpg&flag=clash&route=1"
     type: http
+    interval: 86400
     health-check:
       enable: true
       url: https://www.gstatic.com/generate_204
@@ -29,10 +31,7 @@ proxies:
 # 系统与 DNS 设置
 # ========================
 port: 7890
-socks-port: 7891
-redir-port: 7892
 mixed-port: 7893
-tproxy-port: 7895
 allow-lan: true
 mode: rule
 log-level: info
@@ -52,7 +51,7 @@ tun:
   enable: true
   stack: gvisor
   device: utun
-  auto-route: false
+  auto-route: true
 
 # ========================
 # 策略组定义
@@ -60,20 +59,20 @@ tun:
 default: &default
   type: select
   proxies:
-    - 全地区低倍率-故转  # <--- 已按要求挪至第一位
+    - 全地区低倍率-故转  # 首选
     - 所有-智选
+    - 所有-手选
     - 香港-故转
     - 台湾-故转
     - 日本-故转
     - 新加坡-故转
     - 美国-故转
     - 其他-故转
-    - 所有-手选
     - 直连
     - 拒绝
 
 proxy-groups:
-  # --- 1. 业务分流组 (遵循锚点顺序：低倍率优先) ---
+  # --- 1. 业务分流组 (低倍率优先) ---
   - {name: AI, <<: *default}
   - {name: Meta AI, <<: *default}
   - {name: Perplexity, <<: *default}
@@ -88,17 +87,17 @@ proxy-groups:
   - {name: 国外, <<: *default}
   - {name: 其他, <<: *default}  
 
-  # --- 2. 业务分流组 (手动覆盖：直连优先) ---
+  # --- 2. 业务分流组 (直连优先) ---
   - name: 国内
-    type: select
-    proxies: [直连, 全地区低倍率-故转, 所有-智选, 香港-故转]
+    <<: *default
+    proxies: [直连, 全地区低倍率-故转, 所有-智选, 所有-手选]
 
   - name: Nvidia
-    type: select
-    proxies: [直连, 全地区低倍率-故转, 所有-智选, 美国-故转]
+    <<: *default
+    proxies: [直连, 全地区低倍率-故转, 所有-智选, 所有-手选]
 
   - name: Test
-    type: select
+    <<: *default
     proxies: [直连, 全地区低倍率-故转, 所有-智选, 香港-故转]
 
   # --- 3. 刮削专项 ---
@@ -109,16 +108,16 @@ proxy-groups:
     type: select
     proxies: [非日低倍率-故转, 新加坡-故转, 香港-故转, 美国-故转, 直连]
 
-  # --- 4. 基础逻辑定义 ---
+  # --- 4. 节点逻辑组 ---
   - {name: 所有-手选, type: select, include-all: true, filter: "^((?!(直连|拒绝)).)*$"}
   - {name: 所有-智选, type: smart, include-all: true, policy-priority: ".*牛逼.*:0.8;.*(香港|HK).*:1.2", interval: 180, filter: "^((?!(直连|拒绝)).)*$"}
 
-  # 低倍率逻辑
+  # 全地区低倍率
   - {name: 全地区低倍率-故转, type: fallback, proxies: [全地区低倍率-手选, 全地区低倍率-智选]}
   - {name: 全地区低倍率-手选, type: select, include-all: true, filter: "^(?=.*(0\\.1x|0\\.1X|0\\.2x|0\\.5x|低倍率|倍率)).*$"}
   - {name: 全地区低倍率-智选, type: smart, include-all: true, filter: "^(?=.*(0\\.1x|0\\.1X|0\\.2x|0\\.5x|低倍率|倍率)).*$"}
 
-  # 地区 Fallback (手选优先 > 智选备灾)
+  # 地区 Fallback (手选 > 智选)
   - {name: 香港-故转, type: fallback, proxies: [香港-手选, 香港-智选]}
   - {name: 香港-手选, type: select, include-all: true, filter: "(?=.*(香港|HK|Hong Kong|🇭🇰)).*$"}
   - {name: 香港-智选, type: smart, include-all: true, filter: "(?=.*(香港|HK|Hong Kong|🇭🇰)).*$"}
@@ -158,7 +157,7 @@ proxy-groups:
 rules:
   - RULE-SET,TEST / Domain,Test
   - RULE-SET,Block / Domain,Block  
-  - RULE-SET,GitHub / Domain,GitHub    
+  - RULE-SET,GitHub / Domain,GitHub      
   - RULE-SET,ChatGPT / Domain,AI
   - RULE-SET,Claude / Domain,AI
   - RULE-SET,Copilot / Domain,AI
@@ -188,7 +187,7 @@ rules:
   - MATCH,其他
 
 # ========================
-# 规则集提供者
+# 规则集提供者 (已修复 Youtube 报错)
 # ========================
 rule-anchor:
   ip: &ip {type: http, interval: 86400, behavior: ipcidr, format: mrs}
@@ -240,12 +239,7 @@ rule-providers:
   Private / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/private.mrs"}
   China / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/cn.mrs"}
   China / IP: {<<: *ip, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geoip/cn.mrs"}
-#  Twitter / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/x.mrs"}
-#  WhatsApp / Domain: {<<: *class, url: "https://gh-proxy.com/raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/Whatsapp/Whatsapp.list"}
-#  Facebook / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/facebook.mrs"}
-#  Telegram / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/telegram.mrs"}  
-#  Telegram / IP: {<<: *ip, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geoip/telegram.mrs"}
-#  Youtube / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/youtube.mrs"}  
-#  Google / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/google.mrs"}  
-#  Google / IP: {<<: *ip, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geoip/google.mrs"}
-#  GateFireWall / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/gfw.mrs"}
+  # 以下规则集已根据 rules 需求取消注释
+  Youtube / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/youtube.mrs"}
+  Google / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/google.mrs"}
+  Google / IP: {<<: *ip, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geoip/google.mrs"}
