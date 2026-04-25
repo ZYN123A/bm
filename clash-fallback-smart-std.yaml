@@ -1,15 +1,20 @@
 # ========================
-# Clash-ALL 优化配置
+# Clash-ALL 终极整合配置文件 (低倍率首选版)
 # ========================
 
-# 机场节点订阅
-
 proxy-providers:
-
-  机场名称:
-    url: "机场订阅地址"  
+  FlowerCloud:
+    url: "https://api-huacloud.net/sub?target=clash&insert=true&emoji=true&udp=true&clash.doh=true&new_name=true&filename=Flower_SS.yaml&url=https%3A%2F%2Fapi.xmancdn.net%2Fosubscribe.php%3Ftoken2%3Dy89knzkq-51cef23b200kl4c7k2%26sip002%3D1"
     type: http
-    interval: 86400
+    health-check:
+      enable: true
+      url: https://www.gstatic.com/generate_204
+      interval: 300
+    proxy: 直连
+
+  SSRDOG:
+    url: "https://be6454034c3513812039e7c9714c988c.m4hs-9ekt-y2qb-fa7x-wl6r.sbs/s?q=d8089200&t=be6454034c3513812039e7c9714c988c.jpg&flag=clash&route=1"
+    type: http
     health-check:
       enable: true
       url: https://www.gstatic.com/generate_204
@@ -21,97 +26,33 @@ proxies:
   - {name: 拒绝, type: reject}
 
 # ========================
-# 主要端口设置
+# 系统与 DNS 设置
 # ========================
 port: 7890
 socks-port: 7891
 redir-port: 7892
 mixed-port: 7893
 tproxy-port: 7895
-
 allow-lan: true
 mode: rule
 log-level: info
-
 external-controller: 0.0.0.0:9090
-# external-ui: ui
-# external-ui-name: zashboard
-# external-ui-url: https://gh-proxy.com/GitHub.com/Zephyruso/zashboard/archive/refs/heads/gh-pages.zip
 secret: "123456"
 
-# ========================
-# DNS 设置
-# ========================
 dns:
   enable: true
   listen: 0.0.0.0:7874
   ipv6: true
   enhanced-mode: fake-ip
   fake-ip-range: 198.20.0.1/16
-  nameserver:
-    - 223.5.5.5
-  fake-ip-filter-mode: blacklist
-  fake-ip-filter:
-    - +.lan
-    - +.local
-    - geosite:cn
-# 快猫    
-    - +.km688.ink
-# 火烧 
-    - +.onesubv.site
-    - +.oneyyds.online
-    - +.fengyyds.site
-    - +.onemg.top    
-# 猫耳 
-    - +.chybinc.com
-# BestVPN 
-    - +.invitevp.com
-    - +.vp2.us
-# 小牛
-    - +.xiaoniuyun.cc  
-# 硅谷
-    - +.apple-bing.sbs  
-# 无界
-    - +.bncrcloud.com
-# 冰云
-    - +.xby01.xyz
-# 牛逼   
-    - +.idsduf.com  
-    - +.66jc.top
-# 极速通        
-    - +.gfw.gg
-# 萌狗       
-    - +.moedog.cloud
+  nameserver: [223.5.5.5]
+  fake-ip-filter: ["+.lan", "+.local", "geosite:cn", "+.km688.ink", "+.onesubv.site", "+.oneyyds.online", "+.fengyyds.site", "+.onemg.top", "+.chybinc.com", "+.invitevp.com", "+.vp2.us", "+.xiaoniuyun.cc", "+.apple-bing.sbs", "+.bncrcloud.com", "+.xby01.xyz", "+.idsduf.com", "+.66jc.top", "+.gfw.gg", "+.moedog.cloud", "+.ynhtbank.com", "+.qeayr.cn", "+.saojc.xyz", "+.sssyun.xyz", "+.dler.cloud", "+.0tk8a3a1q4t94dler.com", "+.aerianas.top", "+.gptacg.top", "+.wxda.net"]
 
-# 其他     
-    - +.ynhtbank.com
-    - +.qeayr.cn
-    - +.saojc.xyz   
-    - +.sssyun.xyz
-    - +.dler.cloud
-    - +.0tk8a3a1q4t94dler.com    
-    - +.aerianas.top
-    - +.gptacg.top
-    - +.wxda.net
-
-ipv6: false
-
-# ========================
-# TUN 模块
-# ========================
 tun:
   enable: true
   stack: gvisor
   device: utun
-  endpoint-independent-nat: true
   auto-route: false
-  auto-detect-interface: false
-  auto-redirect: false
-  strict-route: false
-
-profile:
-  store-selected: true
-  store-fake-ip: true
 
 # ========================
 # 策略组定义
@@ -119,238 +60,102 @@ profile:
 default: &default
   type: select
   proxies:
-    - 直连
+    - 全地区低倍率-故转  # <--- 已按要求挪至第一位
     - 所有-智选
-    - 所有-手选
-    - 香港-智选
     - 香港-故转
     - 台湾-故转
     - 日本-故转
     - 新加坡-故转
     - 美国-故转
     - 其他-故转
+    - 所有-手选
+    - 直连
     - 拒绝
 
 proxy-groups:
-
-  # 业务分流组
-
+  # --- 1. 业务分流组 (遵循锚点顺序：低倍率优先) ---
   - {name: AI, <<: *default}
   - {name: Meta AI, <<: *default}
   - {name: Perplexity, <<: *default}
   - {name: Stream Media, <<: *default}
   - {name: GitHub, <<: *default}
   - {name: Reddit, <<: *default}  
-  - {name: Nvidia, <<: *default}
   - {name: Apple, <<: *default}
   - {name: Microsoft, <<: *default}
   - {name: Games, <<: *default}
   - {name: Crypto, <<: *default}
-  - {name: Test, <<: *default}
   - {name: Block, <<: *default}
   - {name: 国外, <<: *default}
-  - {name: 国内, <<: *default}
   - {name: 其他, <<: *default}  
 
-  # 所有组
-
-  - name: 所有-手选
+  # --- 2. 业务分流组 (手动覆盖：直连优先) ---
+  - name: 国内
     type: select
-    include-all: true
-    filter: "^((?!(直连|拒绝)).)*$"
+    proxies: [直连, 全地区低倍率-故转, 所有-智选, 香港-故转]
 
-  - name: 所有-智选
-    type: smart
-    include-all: true
-    policy-priority: ".*牛逼.*:0.8;.*(香港|HK).*:1.2"
-    uselightgbm: true
-    collectdata: true
-    health-check: 
-      enable: true
-      url: https://www.gstatic.com/generate_204
-      interval: 60
-      tolerance: 2
-    strategy: sticky-sessions
-    interval: 180
-    filter: "^((?!(直连|拒绝)).)*$"
-
-  # 香港组
-
-  - name: 香港-故转
-    type: fallback
-    interval: 180
-    lazy: false
-    proxies:
-      - 香港-手选
-      - 香港-智选
-  
-  - name: 香港-手选
+  - name: Nvidia
     type: select
-    include-all: true
-    filter: "(?=.*(广港|香港|HK|Hong Kong|🇭🇰|HongKong)).*$"
-    
-  - name: 香港-智选
-    type: smart
-    include-all: true
-    policy-priority: ".*牛逼.*:0.8"
-    uselightgbm: true
-    collectdata: true
-    health-check: 
-      enable: true
-      url: https://www.gstatic.com/generate_204
-      interval: 60
-      tolerance: 2
-    strategy: sticky-sessions
-    interval: 180
-    filter: "(?=.*(广港|香港|HK|Hong Kong|🇭🇰|HongKong)).*$"
- 
-  # 台湾组
+    proxies: [直连, 全地区低倍率-故转, 所有-智选, 美国-故转]
 
-  - name: 台湾-故转
-    type: fallback
-    interval: 180
-    lazy: false
-    proxies:
-      - 台湾-手选
-      - 台湾-智选
-  - name: 台湾-手选
+  - name: Test
     type: select
-    include-all: true
-    filter: "(?=.*(广台|台湾|台灣|TW|Tai Wan|🇹🇼|🇨🇳|TaiWan|Taiwan)).*$"
-  - name: 台湾-智选
-    type: smart
-    include-all: true
-    policy-priority: ".*牛逼.*:0.8"
-    uselightgbm: true
-    collectdata: true
-    health-check: 
-      enable: true
-      url: https://www.gstatic.com/generate_204
-      interval: 60
-      tolerance: 2
-    strategy: sticky-sessions
-    interval: 180
-    filter: "(?=.*(广台|台湾|台灣|TW|Tai Wan|🇹🇼|🇨🇳|TaiWan|Taiwan)).*$"
+    proxies: [直连, 全地区低倍率-故转, 所有-智选, 香港-故转]
 
-  # 日本组
-
-  - name: 日本-故转
-    type: fallback
-    interval: 180
-    lazy: false
-    proxies:
-      - 日本-手选
-      - 日本-智选
-  - name: 日本-手选
+  # --- 3. 刮削专项 ---
+  - name: 日本刮削
     type: select
-    include-all: true
-    filter: "(?=.*(广日|日本|JP|川日|东京|大阪|泉日|埼玉|沪日|深日|🇯🇵|Japan)).*$"
-  - name: 日本-智选
-    type: smart
-    include-all: true
-    policy-priority: ".*牛逼.*:0.8"
-    uselightgbm: true
-    collectdata: true
-    health-check: 
-      enable: true
-      url: https://www.gstatic.com/generate_204
-      interval: 60
-      tolerance: 2
-    strategy: sticky-sessions
-    interval: 180
-    filter: "(?=.*(广日|日本|JP|川日|东京|大阪|泉日|埼玉|沪日|深日|🇯🇵|Japan)).*$"
-
-  # 新加坡组
-
-  - name: 新加坡-故转
-    type: fallback
-    interval: 180
-    lazy: false
-    proxies:
-      - 新加坡-手选
-      - 新加坡-智选
-  - name: 新加坡-手选
+    proxies: [日本低倍率-故转, 日本-故转, 日本-手选, 直连]
+  - name: 非日刮削
     type: select
-    include-all: true
-    filter: "(?=.*(广新|新加坡|SG|坡|狮城|🇸🇬|Singapore)).*$"
-  - name: 新加坡-智选
-    type: smart
-    include-all: true
-    policy-priority: ".*牛逼.*:0.8"
-    uselightgbm: true
-    collectdata: true
-    health-check: 
-      enable: true
-      url: https://www.gstatic.com/generate_204
-      interval: 60
-      tolerance: 2
-    strategy: sticky-sessions
-    interval: 180
-    filter: "(?=.*(广新|新加坡|SG|坡|狮城|🇸🇬|Singapore)).*$"
+    proxies: [非日低倍率-故转, 新加坡-故转, 香港-故转, 美国-故转, 直连]
 
-  # 美国组
+  # --- 4. 基础逻辑定义 ---
+  - {name: 所有-手选, type: select, include-all: true, filter: "^((?!(直连|拒绝)).)*$"}
+  - {name: 所有-智选, type: smart, include-all: true, policy-priority: ".*牛逼.*:0.8;.*(香港|HK).*:1.2", interval: 180, filter: "^((?!(直连|拒绝)).)*$"}
 
-  - name: 美国-故转
-    type: fallback
-    interval: 180
-    lazy: false
-    proxies:
-      - 美国-手选
-      - 美国-智选
-  - name: 美国-手选
-    type: select
-    include-all: true
-    filter: "(?=.*(广美|US|美国|纽约|波特兰|达拉斯|俄勒|凤凰城|费利蒙|洛杉|圣何塞|圣克拉|西雅|芝加|🇺🇸|United States)).*$"
-  - name: 美国-智选
-    type: smart
-    include-all: true
-    policy-priority: ".*牛逼.*:0.8"
-    uselightgbm: true
-    collectdata: true
-    health-check: 
-      enable: true
-      url: https://www.gstatic.com/generate_204
-      interval: 60
-      tolerance: 2
-    strategy: sticky-sessions
-    interval: 180
-    filter: "(?=.*(广美|US|美国|纽约|波特兰|达拉斯|俄勒|凤凰城|费利蒙|洛杉|圣何塞|圣克拉|西雅|芝加|🇺🇸|United States)).*$"
+  # 低倍率逻辑
+  - {name: 全地区低倍率-故转, type: fallback, proxies: [全地区低倍率-手选, 全地区低倍率-智选]}
+  - {name: 全地区低倍率-手选, type: select, include-all: true, filter: "^(?=.*(0\\.1x|0\\.1X|0\\.2x|0\\.5x|低倍率|倍率)).*$"}
+  - {name: 全地区低倍率-智选, type: smart, include-all: true, filter: "^(?=.*(0\\.1x|0\\.1X|0\\.2x|0\\.5x|低倍率|倍率)).*$"}
 
+  # 地区 Fallback (手选优先 > 智选备灾)
+  - {name: 香港-故转, type: fallback, proxies: [香港-手选, 香港-智选]}
+  - {name: 香港-手选, type: select, include-all: true, filter: "(?=.*(香港|HK|Hong Kong|🇭🇰)).*$"}
+  - {name: 香港-智选, type: smart, include-all: true, filter: "(?=.*(香港|HK|Hong Kong|🇭🇰)).*$"}
 
-  # 其他组
-  
-  - name: 其他-故转
-    type: fallback
-    interval: 180
-    lazy: false
-    proxies:
-      - 其他-手选
-      - 其他-智选
-  - name: 其他-手选
-    type: select
-    include-all: true
-    filter: "^((?!(直连|拒绝|广港|香港|HK|Hong Kong|🇭🇰|HongKong|广台|台湾|台灣|TW|Tai Wan|🇹🇼|🇨🇳|TaiWan|Taiwan|广日|日本|JP|川日|东京|大阪|泉日|埼玉|沪日|深日|🇯🇵|Japan|广新|新加坡|SG|坡|狮城|🇸🇬|Singapore|广美|US|美国|纽约|波特兰|达拉斯|俄勒|凤凰城|费利蒙|洛杉|圣何塞|圣克拉|西雅|芝加|🇺🇸|United States)).)*$"
+  - {name: 台湾-故转, type: fallback, proxies: [台湾-手选, 台湾-智选]}
+  - {name: 台湾-手选, type: select, include-all: true, filter: "(?=.*(台湾|台灣|TW|🇹🇼|Tai)).*$"}
+  - {name: 台湾-智选, type: smart, include-all: true, filter: "(?=.*(台湾|台灣|TW|🇹🇼|Tai)).*$"}
 
-  - name: 其他-智选
-    type: smart
-    include-all: true
-    policy-priority: ".*牛逼.*:0.8"
-    uselightgbm: true
-    collectdata: true
-    health-check: 
-      enable: true
-      url: https://www.gstatic.com/generate_204
-      interval: 60
-      tolerance: 2
-    strategy: sticky-sessions
-    interval: 180
-    filter: "^((?!(直连|拒绝|广港|香港|HK|Hong Kong|🇭🇰|HongKong|广台|台湾|台灣|TW|Tai Wan|🇹🇼|🇨🇳|TaiWan|Taiwan|广日|日本|JP|川日|东京|大阪|泉日|埼玉|沪日|深日|🇯🇵|Japan|广新|新加坡|SG|坡|狮城|🇸🇬|Singapore|广美|US|美国|纽约|波特兰|达拉斯|俄勒|凤凰城|费利蒙|洛杉|圣何塞|圣克拉|西雅|芝加|🇺🇸|United States)).)*$"
+  - {name: 日本-故转, type: fallback, proxies: [日本-手选, 日本-智选]}
+  - {name: 日本-手选, type: select, include-all: true, filter: "(?=.*(日本|JP|🇯🇵|Japan)).*$"}
+  - {name: 日本-智选, type: smart, include-all: true, filter: "(?=.*(日本|JP|🇯🇵|Japan)).*$"}
+
+  - {name: 新加坡-故转, type: fallback, proxies: [新加坡-手选, 新加坡-智选]}
+  - {name: 新加坡-手选, type: select, include-all: true, filter: "(?=.*(新加坡|SG|坡|🇸🇬|Singapore)).*$"}
+  - {name: 新加坡-智选, type: smart, include-all: true, filter: "(?=.*(新加坡|SG|坡|🇸🇬|Singapore)).*$"}
+
+  - {name: 美国-故转, type: fallback, proxies: [美国-手选, 美国-智选]}
+  - {name: 美国-手选, type: select, include-all: true, filter: "(?=.*(美国|US|🇺🇸|United States)).*$"}
+  - {name: 美国-智选, type: smart, include-all: true, filter: "(?=.*(美国|US|🇺🇸|United States)).*$"}
+
+  - {name: 其他-故转, type: fallback, proxies: [其他-手选, 其他-智选]}
+  - {name: 其他-手选, type: select, include-all: true, filter: "^((?!(直连|拒绝|香港|HK|台湾|TW|日本|JP|新加坡|SG|美国|US)).)*$"}
+  - {name: 其他-智选, type: smart, include-all: true, filter: "^((?!(直连|拒绝|香港|HK|台湾|TW|日本|JP|新加坡|SG|美国|US)).)*$"}
+
+  # 刮削专用低倍率
+  - {name: 日本低倍率-故转, type: fallback, proxies: [日本低倍率-手选, 日本低倍率-智选]}
+  - {name: 日本低倍率-手选, type: select, include-all: true, filter: "^(?=.*(0\\.1x|0\\.1X|0\\.2x|0\\.5x|低倍率|倍率))(?=.*(日本|JP|🇯🇵|Japan)).*$"}
+  - {name: 日本低倍率-智选, type: smart, include-all: true, filter: "^(?=.*(0\\.1x|0\\.1X|0\\.2x|0\\.5x|低倍率|倍率))(?=.*(日本|JP|🇯🇵|Japan)).*$"}
+
+  - {name: 非日低倍率-故转, type: fallback, proxies: [非日低倍率-手选, 非日低倍率-智选]}
+  - {name: 非日低倍率-手选, type: select, include-all: true, filter: "^(?=.*(0\\.1x|0\\.1X|0\\.2x|0\\.5x|低倍率|倍率))(?!.*(日本|JP|🇯🇵|Japan)).*$"}
+  - {name: 非日低倍率-智选, type: smart, include-all: true, filter: "^(?=.*(0\\.1x|0\\.1X|0\\.2x|0\\.5x|低倍率|倍率))(?!.*(日本|JP|🇯🇵|Japan)).*$"}
 
 # ========================
-# 规则引擎（rules）
+# 规则引擎
 # ========================
 rules:
-
   - RULE-SET,TEST / Domain,Test
   - RULE-SET,Block / Domain,Block  
   - RULE-SET,GitHub / Domain,GitHub    
@@ -362,36 +167,24 @@ rules:
   - RULE-SET,Grok / Domain,AI
   - RULE-SET,Meta AI / Domain,Meta AI
   - RULE-SET,Perplexity / Domain,Perplexity
-  - RULE-SET,Microsoft / Domain,Microsoft
-  - RULE-SET,Apple / Domain,Apple
-  - RULE-SET,Apple-CN / Domain,Apple  
-  - RULE-SET,OKX / Domain,Crypto
-  - RULE-SET,Bybit / Domain,Crypto
-  - RULE-SET,Binance / Domain,Crypto
+  
+  - RULE-SET,Youtube / Domain,Stream Media
   - RULE-SET,TikTok / Domain,Stream Media
   - RULE-SET,Netflix / Domain,Stream Media
   - RULE-SET,Netflix / IP,Stream Media,no-resolve
-  - RULE-SET,Disney / Domain,Stream Media
-  - RULE-SET,Amazon / Domain,Stream Media
-  - RULE-SET,HBO / Domain,Stream Media
-  - RULE-SET,Crunchyroll / Domain,Stream Media
-  - RULE-SET,Popcorn / Domain,Stream Media  
-  - RULE-SET,Spotify / Domain,Stream Media
-  - RULE-SET,Steam / Domain,Games
-  - RULE-SET,Epic / Domain,Games
-  - RULE-SET,EA / Domain,Games
-  - RULE-SET,Blizzard / Domain,Games
-  - RULE-SET,UBI / Domain,Games
-  - RULE-SET,PlayStation / Domain,Games
-  - RULE-SET,Nintend / Domain,Games
+  
+  - RULE-SET,日本刮削,日本刮削
+  - RULE-SET,非日刮削,非日刮削
+
+  - RULE-SET,Microsoft / Domain,Microsoft
+  - RULE-SET,Apple / Domain,Apple
   - RULE-SET,Nvidia / Domain,Nvidia
-  - RULE-SET,Reddit / Domain,Reddit  
-  - RULE-SET,Proxy / Domain,国外
-  - RULE-SET,Globe / Domain,国外  
+  - RULE-SET,Steam / Domain,Games
+  - RULE-SET,OKX / Domain,Crypto
+  
   - RULE-SET,Direct / Domain,国内
   - RULE-SET,China / Domain,国内
   - RULE-SET,China / IP,国内,no-resolve
-  - RULE-SET,Private / Domain,国内
   - MATCH,其他
 
 # ========================
@@ -403,6 +196,9 @@ rule-anchor:
   class: &class {type: http, interval: 86400, behavior: classical, format: text}
 
 rule-providers:
+  日本刮削: {<<: *class, url: "https://gh-proxy.com/raw.githubusercontent.com/ZYN123A/bm/refs/heads/main/AAI.list"}
+  非日刮削: {<<: *class, url: "https://gh-proxy.com/raw.githubusercontent.com/ZYN123A/bm/refs/heads/main/FFAI.list"}
+  
   TEST / Domain: {<<: *class, url: "https://gh-proxy.com/raw.githubusercontent.com/liandu2024/clash/refs/heads/main/list/Check.list"}
   ChatGPT / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/openai.mrs"}
   Claude / Domain: {<<: *class, url: "https://gh-proxy.com/raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/Claude/Claude.list"}
@@ -453,6 +249,3 @@ rule-providers:
 #  Google / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/google.mrs"}  
 #  Google / IP: {<<: *ip, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geoip/google.mrs"}
 #  GateFireWall / Domain: {<<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/gfw.mrs"}
-
-
-
