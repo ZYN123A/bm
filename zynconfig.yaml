@@ -335,6 +335,11 @@ proxy-groups:
 # 规则引擎
 # ========================
 rules:
+  - DOMAIN-SUFFIX,local,DIRECT
+  - IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
+  - IP-CIDR,10.0.0.0/8,DIRECT,no-resolve
+  - IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
+  - IP-CIDR,127.0.0.0/8,DIRECT,no-resolve
   - RULE-SET,日本刮削,日本刮削
   - RULE-SET,非日刮削,非日刮削
   - RULE-SET,TEST / Domain,Test
