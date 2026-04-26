@@ -4,7 +4,7 @@
 
 proxy-providers:
   FlowerCloud:
-    url: "https://api-huacloud.net/sub?target=clash&insert=true&emoji=true&udp=true&clash.doh=true&new_name=true&filename=Flower_SS.yaml&url=https%3A%2F%2Fapi.xmancdn.net%2Fosubscribe.php%3Ftoken2%3Dy89knzkq-51cef23b200kl4c7k2%26sip002%3D1"
+    url: ".xmanc002%3D1"
     type: http
     health-check:
       enable: true
@@ -13,7 +13,7 @@ proxy-providers:
     proxy: 🚀 直连
 
   SSRDOG:
-    url: "https://be6454034c3513812039e7c9714c988c.m4hs-9ekt-y2qb-fa7x-wl6r.sbs/s?q=61f9a0e5&t=be6454034c3513812039e7c9714c988c.jpg&flag=clash&route=1"
+    url: "https://g=clash&route=1"
     type: http
     health-check:
       enable: true
