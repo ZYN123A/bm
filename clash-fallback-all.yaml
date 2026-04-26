@@ -7,7 +7,7 @@
 proxy-providers:
 
   FlowerCloud:
-    url: "https://api-huacloud.net/sub?target=clash&insert=true&emoji=true&udp=true&clash.doh=true&new_name=true&filename=Flower_SS.yaml&url=https%3A%2F%2Fapi.xmancdn.net%2Fosubscribe.php%3Ftoken2%3Dy89knzkq-51cef23b200kl4c7k2%26sip002%3D1"  
+    url: "https://api.xmancdn.net%2FD1"  
     type: http
     interval: 86400
     health-check:
